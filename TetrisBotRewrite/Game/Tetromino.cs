@@ -35,6 +35,69 @@ namespace TetrisBotRewrite
             shape = rotations[currentRotation];
         }
 
+        // Removes the padded space around the 4x4 shape matrix
+        // i don't know a simpler way to do this 
+        public override string ToString()
+        {
+            var points = ShapeToPoints().Select(p => p = p - position);
+            int[,] tiles = new int[4, 4];
+
+            foreach (Point p in points)
+            {
+                tiles[p.y, p.x] = (int)type;
+            }
+
+            // Mark empty rows
+            for (int row = 0; row < 4; row++)
+            {
+                bool empty = true;
+                for (int col = 0; col < 4; col++)
+                {
+                    if (tiles[col, row] != 0 && tiles[col, row] != -1)
+                        empty = false;
+                }
+                if (empty)
+                {
+                    for (int col = 0; col < 4; col++)
+                    {
+                        tiles[col, row] = -1;
+                    }
+                }
+            }
+
+            // Mark empty columns
+            for (int col = 0; col < 4; col++)
+            {
+                bool empty = true;
+                for (int row = 0; row < 4; row++)
+                {
+                    if (tiles[col, row] != 0 && tiles[col, row] != -1)
+                        empty = false;
+                }
+                if (empty)
+                {
+                    for (int row = 0; row < 4; row++)
+                    {
+                        tiles[col, row] = -1;
+                    }
+                }
+            }
+
+            // Convert to string
+            string output = "";
+            for (int row = 0; row < 4; row++)
+            {
+                for (int col = 0; col < 4; col++)
+                {
+                    if (tiles[row, col] != -1)
+                        output += Utils.TetrominoTypeToEmoji(tiles[row, col]);
+                }
+                output += "\n";
+            }
+
+            return output;
+        }
+
         // Convert the tile indices into 2d coordinates (ex: 6 becomes (2, 1))
         public Point[] ShapeToPoints()
         {

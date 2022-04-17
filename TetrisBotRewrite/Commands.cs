@@ -23,7 +23,13 @@ namespace TetrisBotRewrite
         [SlashCommand("help", "How to use this bot.")]
         public async Task Help()
         {
-            await RespondAsync("Response");
+            var builder = new EmbedBuilder();
+            builder.WithTitle("Help")
+                   .AddField("/setchannel", "Sets the channel where the game will be played.")
+                   .AddField("/start", "Starts the game, you only need to do this after setting the channel for the first time")
+                   .AddField("General Help", "Vote on the move to make by clicking the buttons! You only get one move per turn.")
+                   .WithColor(Color.Purple);
+            await RespondAsync(embed: builder.Build());
         }
 
         [SlashCommand("setchannel", "Specify a channel for the Tetris game.")]
@@ -53,22 +59,5 @@ namespace TetrisBotRewrite
                 await RespondAsync($"Tetris game started in #{game.Channel.Name}");
             }
         }
-
-        //[SlashCommand("board", "Show the board.")]
-        //public async Task Board()
-        //{
-        //    var jsonData = File.ReadAllText("data.json");
-        //    var guildsList = JsonConvert.DeserializeObject<Dictionary<ulong, TetrisGame>>(jsonData) ?? new Dictionary<ulong, TetrisGame>();
-        //    TetrisGame game = guildsList[Context.Guild.Id];
-
-        //    var builder = new ComponentBuilder()
-        //        .WithButton("Test", "test-id")
-        //        .WithButton("Test1", "test1-id")
-        //        .WithButton("Test2", "test2-id")
-        //        .WithButton("Test3", "test3-id")
-        //        .WithButton("Test4", "test4-id");
-
-        //    await RespondAsync(embed: game.GetEmbed(), components: builder.Build());
-        //}
     }
 }

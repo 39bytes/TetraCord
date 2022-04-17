@@ -34,7 +34,6 @@ namespace TetrisBotRewrite
             var client = new DiscordSocketClient(clientConfig);
 
             var gameManager = new GameManager(client);
-            await gameManager.LoadGames();
 
             // Dependency injection is a key part of the Interactions framework but it needs to be disposed at the end of the app's lifetime.
             using var services = new ServiceCollection()
@@ -48,6 +47,10 @@ namespace TetrisBotRewrite
             var commands = services.GetRequiredService<InteractionService>();
 
             client.Log += LogAsync;
+
+            // Only load game data after guild data has finished downloading
+            client.Ready += async () => await gameManager.LoadGames();
+
             commands.Log += LogAsync;
 
             // Slash Commands and Context Commands are can be automatically registered, but this process needs to happen after the client enters the READY state.
@@ -79,8 +82,6 @@ namespace TetrisBotRewrite
             Console.WriteLine(message.ToString());
             return Task.CompletedTask;
         }
-
-
 
         static bool IsDebug()
         {

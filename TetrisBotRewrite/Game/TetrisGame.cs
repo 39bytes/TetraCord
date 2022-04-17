@@ -27,23 +27,33 @@ namespace TetrisBotRewrite
         // The current active game embed
         public IUserMessage Message { get; set; }
 
+        public delegate void TetrisGameUpdateHandler(ulong id);
+
+        // Callback used to notify the game manager of game updates so data can be written to Redis
+        public event TetrisGameUpdateHandler Updated;
+
         // The playing field
         private Grid _grid;
 
         // The current piece in play
         private Tetromino _currentPiece;
 
+        // The piece that will come after
+        private Tetromino _nextPiece;
+
         private int _score;
 
+        // Votes for each action
         private Dictionary<GameAction, int> _votes;
 
+        // The users that have voted
         private List<ulong> _usersVoted;
 
         private DiscordSocketClient _client;
 
         private Random _random;
 
-        private System.Timers.Timer _votingTimer = new System.Timers.Timer(30 * 60 * 1000);
+        private System.Timers.Timer _votingTimer = new System.Timers.Timer(30 * 1000);
 
         private System.Timers.Timer _updateVoteCountTimer = new System.Timers.Timer(15 * 1000);
 
@@ -62,18 +72,19 @@ namespace TetrisBotRewrite
         {
             get
             {
-                return new TetrisGameData(Channel.Id, _grid, _currentPiece, _score);
+                return new TetrisGameData(Channel.Id, _grid, _currentPiece, _nextPiece, _score);
             }
         }
 
         public TetrisGame(DiscordSocketClient client, ulong channelId)
         {
             _client = client;
-            Channel = client.GetChannel(channelId) as IMessageChannel;
+            Channel = _client.GetChannel(channelId) as IMessageChannel;
 
             _grid = new Grid();
             _random = new Random();
             _currentPiece = GetNewPiece();
+            _nextPiece = GetNewPiece();
             _score = 0;
 
             ResetVotes();
@@ -85,11 +96,12 @@ namespace TetrisBotRewrite
         public TetrisGame(DiscordSocketClient client, TetrisGameData data)
         {
             _client = client;
-            Channel = client.GetChannel(data.channelId) as IMessageChannel;
+            Channel = _client.GetChannel(data.channelId) as IMessageChannel;
 
             _grid = data.grid;
             _random = new Random();
             _currentPiece = data.currentPiece;
+            _nextPiece = data.nextPiece;
             _score = data.score;
 
             ResetVotes();
@@ -175,6 +187,8 @@ namespace TetrisBotRewrite
                 return;
             }
 
+            Updated.Invoke((Channel as SocketGuildChannel).Guild.Id);
+
             // Reset vote stuff
             ResetVotes();
             _usersVoted.Clear();
@@ -249,6 +263,8 @@ namespace TetrisBotRewrite
             _currentPiece = GetNewPiece();
             ResetVotes();
 
+            Updated.Invoke((Channel as SocketGuildChannel).Guild.Id);
+
             await SendEmbed();
         }
 
@@ -261,7 +277,8 @@ namespace TetrisBotRewrite
         private void LandCurrentPiece()
         {
             _grid.LandPiece(_currentPiece);
-            _currentPiece = GetNewPiece();
+            _currentPiece = _nextPiece;
+            _nextPiece = GetNewPiece();
         }
 
         public void MoveRight()
@@ -333,6 +350,7 @@ namespace TetrisBotRewrite
                                 + $"🔃: {_votes[GameAction.RotateCW]} 🔄: {_votes[GameAction.RotateCCW]} ⏬: {_votes[GameAction.HardDrop]}";
             return new EmbedBuilder()
                 .AddField($"Score: {_score}", _grid.GetGridString(_currentPiece), inline: true)
+                .AddField("Next piece:", _nextPiece.ToString(), inline: true)
                 .AddField("Votes", votesString, false)
                 .WithColor(Color.Purple)
                 .WithCurrentTimestamp()

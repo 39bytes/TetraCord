@@ -11,13 +11,15 @@ namespace TetrisBotRewrite
         public readonly ulong channelId;
         public readonly Grid grid;
         public readonly Tetromino currentPiece;
+        public readonly Tetromino nextPiece;
         public readonly int score;
 
-        public TetrisGameData(ulong channelId, Grid grid, Tetromino currentPiece, int score)
+        public TetrisGameData(ulong channelId, Grid grid, Tetromino currentPiece, Tetromino nextPiece, int score)
         {
             this.channelId = channelId;
             this.grid = grid;
             this.currentPiece = currentPiece;
+            this.nextPiece = nextPiece;
             this.score = score;
         }
 

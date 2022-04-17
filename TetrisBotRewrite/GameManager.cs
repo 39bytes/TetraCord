@@ -50,7 +50,10 @@ namespace TetrisBotRewrite
 
                 // Load it into the dictionary
                 TetrisGame game = new TetrisGame(_client, data);
-                games.Add(ulong.Parse(id), game);
+                AddGame(ulong.Parse(id), game);
+
+                // Auto start on load
+                await game.StartGame();
             }
         }
 
@@ -60,7 +63,7 @@ namespace TetrisBotRewrite
             TetrisGame game = new TetrisGame(_client, channelId);
             string serialized = JsonConvert.SerializeObject(game.Data);
             db.StringSet(guildId.ToString(), serialized);
-            games.Add(guildId, game);
+            AddGame(guildId, game);
 
             Console.WriteLine($"Created Tetris game for {guildId}");
         }
@@ -73,6 +76,12 @@ namespace TetrisBotRewrite
             db.StringSet(guildId.ToString(), serialized);
 
             Console.WriteLine($"Saved Tetris game for {guildId}");
+        }
+
+        public void AddGame(ulong guildId, TetrisGame game)
+        {
+            game.Updated += SaveGame;
+            games.Add(guildId, game);
         }
 
         public async Task ButtonHandler(SocketMessageComponent component)
