@@ -11,7 +11,7 @@ The bot will post the game state as an embed, which includes things like the boa
 
 ![Imgur](https://i.imgur.com/vfeSdkq.png)
 
-After the voting period has passed (5 minutes), the action with the most votes will be executed, and the next turn starts! Try to get the highest score with your friends before topping out!
+After the voting period has passed (5 minutes), the action with the most votes will be executed, and the next turn starts. Try to get the highest score with your friends before topping out!
 
 ![Imgur](https://i.imgur.com/mVQefYf.png)
 
