@@ -8,8 +8,12 @@ Built using Discord.NET and Redis.
 ## How it works
 
 The bot will post the game state as an embed, which includes things like the board, the next piece, and the score. This embed has multiple buttons on it, which you can click to vote on which action to do.
-![Imgur](https://i.imgur.com/vfeSdkq.png|400)
+
+![Imgur](https://i.imgur.com/vfeSdkq.png)
+
 After the voting period has passed (5 minutes), the action with the most votes will be executed, and the next turn starts! Try to get the highest score with your friends before topping out!
+
+![Imgur](https://i.imgur.com/mVQefYf.png)
 
 # Installation and Setup
 

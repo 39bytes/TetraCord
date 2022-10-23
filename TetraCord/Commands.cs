@@ -58,6 +58,9 @@ namespace TetrisBotRewrite
                 await game.StartGame();
                 await RespondAsync($"Tetris game started in #{game.Channel.Name}");
             }
+            else{
+                await RespondAsync("You must first specify the channel to play the game in with /setchannel.");
+            }
         }
     }
 }

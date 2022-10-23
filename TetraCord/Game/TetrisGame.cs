@@ -53,7 +53,7 @@ namespace TetrisBotRewrite
 
         private Random _random;
 
-        private System.Timers.Timer _votingTimer = new System.Timers.Timer(30 * 1000);
+        private System.Timers.Timer _votingTimer = new System.Timers.Timer(5 * 60 * 1000);
 
         private System.Timers.Timer _updateVoteCountTimer = new System.Timers.Timer(15 * 1000);
 
@@ -143,7 +143,7 @@ namespace TetrisBotRewrite
             // Notify that move was executed
             var builder = new EmbedBuilder();
             builder.WithTitle($"Moving piece {actionEmojis[move]}").WithColor(Color.Blue);
-            await Channel.SendMessageAsync("", false, builder.Build());
+            await Channel.SendMessageAsync(embed: builder.Build());
 
             // Check line clears
             int lineClears = _grid.CheckLineClears();
@@ -179,6 +179,8 @@ namespace TetrisBotRewrite
                        .WithColor(Color.LightOrange);
                 await Channel.SendMessageAsync(embed: builder.Build());
             }
+
+            // Send embed
 
             if (_grid.LossCheck())
             {
