@@ -13,11 +13,9 @@ namespace TetrisBotRewrite
 {
     class Program
     {
-        // Entry point of the program.
         static void Main(string[] args)
         {
-            // One of the more flexable ways to access the configuration data is to use the Microsoft's Configuration model,
-            // this way we can avoid hard coding the environment secrets. I opted to use the Json and environment variable providers here.
+            // Setup configuration to avoid hard coding environment secrets
             IConfiguration config = new ConfigurationBuilder()
                 .AddJsonFile("appsettings.json", optional: false)
                 .Build();
@@ -35,7 +33,7 @@ namespace TetrisBotRewrite
 
             var gameManager = new GameManager(client);
 
-            // Dependency injection is a key part of the Interactions framework but it needs to be disposed at the end of the app's lifetime.
+            // Service collection for dependency injection
             using var services = new ServiceCollection()
                 .AddSingleton(configuration)
                 .AddSingleton(client)
@@ -53,9 +51,8 @@ namespace TetrisBotRewrite
 
             commands.Log += LogAsync;
 
-            // Slash Commands and Context Commands are can be automatically registered, but this process needs to happen after the client enters the READY state.
-            // Since Global Commands take around 1 hour to register, we should use a test guild to instantly update and test our commands. To determine the method we should
-            // register the commands with, we can check whether we are in a DEBUG environment and if we are, we can register the commands to a predetermined test guild.
+            // Global commands can take a while to register, but guild commands update instantly.
+            // For debugging purposes, we can specify a specific test guild to test commands quickly.
             client.Ready += async () =>
             {
                 if (IsDebug())
@@ -67,10 +64,9 @@ namespace TetrisBotRewrite
                     await commands.RegisterCommandsGloballyAsync(true);
             };
 
-            // Here we can initialize the service that will register and execute our commands
             await services.GetRequiredService<CommandHandler>().InitializeAsync();
 
-            // Bot token can be provided from the Configuration object we set up earlier
+            // Login using the bot token provided in the configuration file
             await client.LoginAsync(TokenType.Bot, configuration["token"]);
             await client.StartAsync();
 
